@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class RepLogController extends BaseController
 {
     /**
-     * @Route("/reps", name="rep_log_list")
+     * @Route("/reps", name="rep_log_list", options={"expose"= true})
      * @Method("GET")
      */
     public function getRepLogsAction()
@@ -27,7 +27,9 @@ class RepLogController extends BaseController
     }
 
     /**
-     * @Route("/reps/{id}", name="rep_log_get")
+     * @param RepLog $repLog
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     *  @Route("/reps/{id}", name="rep_log_get" )
      * @Method("GET")
      */
     public function getRepLogAction(RepLog $repLog)
@@ -40,6 +42,8 @@ class RepLogController extends BaseController
     /**
      * @Route("/reps/{id}", name="rep_log_delete")
      * @Method("DELETE")
+     * @param RepLog $repLog
+     * @return Response
      */
     public function deleteRepLogAction(RepLog $repLog)
     {
@@ -54,6 +58,8 @@ class RepLogController extends BaseController
     /**
      * @Route("/reps", name="rep_log_new")
      * @Method("POST")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function newRepLogAction(Request $request)
     {

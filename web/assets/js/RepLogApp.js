@@ -5,6 +5,7 @@
 
         this.wrapper = wrapper;
         this.helper = new Helper(this.wrapper);
+        this.loadRepLogs();
 
         this.wrapper.on('click', '.js-delete-rep', this.handleRepLogDelete.bind(this));
         this.wrapper.on('click', 'tbody tr', this.handleRowClick.bind(this));
@@ -113,6 +114,18 @@
             let html = tpl(repLog);
             this.wrapper.find('tbody').append($.parseHTML(html));
             this.updateTotalWeightLifted();
+        },
+
+        loadRepLogs: function(){
+            let self = this;
+            $.ajax({
+                url: Routing.generate('rep_log_list'),
+                success: function(data) {
+                    $.each(data.items, function (key, repLog) {
+                        self._addRow(repLog);
+                    });
+                }
+            });
         }
 
     });
