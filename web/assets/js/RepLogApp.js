@@ -5,8 +5,9 @@
         this.wrapper = wrapper;
         this.helper = new Helper(this.wrapper);
 
-        this.wrapper.find('.js-delete-rep').on('click', this.handleRepLogDelete.bind(this));
-        this.wrapper.find('tbody tr').on('click', this.handleRowClick.bind(this));
+        this.wrapper.on('click', '.js-delete-rep', this.handleRepLogDelete.bind(this));
+        this.wrapper.on('click','tbody tr', this.handleRowClick.bind(this));
+        this.wrapper.on('submit', '.js-new-rep-log-form', this.handleNewFormSubmit.bind(this));
     };
 
     $.extend(window.RepLogApp.prototype, {
@@ -44,6 +45,28 @@
         handleRowClick: function () {
             console.log('row clicked');
         },
+
+        handleNewFormSubmit: function (e) {
+            e.preventDefault();
+
+            let form = $(e.currentTarget);
+            let tbody = this.wrapper.find('tbody');
+            let self = this;
+
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: form.serialize(),
+                success: function (data) {
+                    tbody.append(data);
+                    self.updateTotalWeightLifted();
+                },
+                error: function(jsXHR) {
+                    form.closest('.js-new-rep-log-form-wrapper').html(jsXHR.responseText);
+                }
+
+            });
+        }
 
     });
 
