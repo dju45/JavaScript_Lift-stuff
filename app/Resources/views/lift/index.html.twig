@@ -26,7 +26,8 @@
                         <td>{{ repLog.reps }}</td>
                         <td>{{ repLog.totalWeightLifted }}</td>
                         <td>
-                            &nbsp;<a href="#" class="js-delete-rep" data-url="{{ path('rep_log_delete', {id: repLog.id}) }}">
+                            &nbsp;<a href="#" class="js-delete-rep"
+                                     data-url="{{ path('rep_log_delete', {id: repLog.id}) }}">
                                 <span class="fa fa-trash"></span>
                             </a>
                         </td>
@@ -38,12 +39,12 @@
                 {% endfor %}
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <th>Total</th>
-                        <th class="js-total-weight">{{ totalWeight }}</th>
-                        <td>&nbsp;</td>
-                    </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <th>Total</th>
+                    <th class="js-total-weight">{{ totalWeight }}</th>
+                    <td>&nbsp;</td>
+                </tr>
                 </tfoot>
             </table>
 
@@ -53,7 +54,7 @@
         <div class="col-md-5">
             <div class="leaderboard">
                 <h2 class="text-center">
-                    <img class="dumbbell" src="{{ asset('assets/images/dumbbell.png') }}" />
+                    <img class="dumbbell" src="{{ asset('assets/images/dumbbell.png') }}"/>
                     Leaderboard
                 </h2>
 
@@ -65,38 +66,16 @@
 
 {% block javascripts %}
     {{ parent() }}
+
+    <script src="{{ asset('assets/js/RepLogApp.js') }}"></script>
+
     <script>
+
         $(document).ready(function () {
             let table = $('.js-rep-log-table');
-
-            table.find('.js-delete-rep').on('click', function(e) {
-                e.preventDefault();
-
-                $(this).addClass('text-danger');
-                $(this).find('.fa')
-                    .removeClass('fa-trash')
-                    .addClass('fa-spinner')
-                    .addClass('fa-spin');
-
-                let deleteUrl = $(this).data('url');
-                let row = $(this).closest('tr');
-                let totalWeightContainer = table.find('js-total-weight');
-                let newWeight = totalWeightContainer.html() - row.data('weight');
-
-                $.ajax({
-                    url: deleteUrl,
-                    method: 'DELETE',
-                    success: function() {
-                        row.fadeOut();
-                        totalWeightContainer.html(newWeight);
-                    }
-                });
-            });
-
-            table.find('tbody tr').on('click', function() {
-                console.log('row clicked!');
-            });
+            let repLogApp = new RepLogApp(table);
 
         });
+
     </script>
 {% endblock %}
