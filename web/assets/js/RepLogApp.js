@@ -2,15 +2,20 @@
 
 (function (window, $) {
     window.RepLogApp = function (wrapper) {
+
         this.wrapper = wrapper;
         this.helper = new Helper(this.wrapper);
 
         this.wrapper.on('click', '.js-delete-rep', this.handleRepLogDelete.bind(this));
-        this.wrapper.on('click','tbody tr', this.handleRowClick.bind(this));
-        this.wrapper.on('submit', '.js-new-rep-log-form', this.handleNewFormSubmit.bind(this));
+        this.wrapper.on('click', 'tbody tr', this.handleRowClick.bind(this));
+        this.wrapper.on('submit', this._selectors.newRepForm, this.handleNewFormSubmit.bind(this));
     };
 
     $.extend(window.RepLogApp.prototype, {
+        _selectors: {
+            newRepForm: '.js-new-rep-log-form'
+        },
+
         updateTotalWeightLifted: function () {
             this.wrapper.find('.js-total-weight').html(
                 this.helper.calculateTotalWeight()
@@ -50,22 +55,60 @@
             e.preventDefault();
 
             let form = $(e.currentTarget);
-            let tbody = this.wrapper.find('tbody');
+            let formData = {};
+            $.each(form.serializeArray(), function (key, fieldData) {
+                formData[fieldData.name] = fieldData.value
+            });
             let self = this;
 
             $.ajax({
-                url: form.attr('action'),
+                url: form.data('url'),
                 method: 'POST',
-                data: form.serialize(),
+                data: JSON.stringify(formData),
                 success: function (data) {
-                    tbody.append(data);
-                    self.updateTotalWeightLifted();
+                    self._clearForm();
+                    self._addRow(data);
                 },
-                error: function(jsXHR) {
-                    form.closest('.js-new-rep-log-form-wrapper').html(jsXHR.responseText);
+                error: function (jqXHR) {
+                    let errorData = JSON.parse(jqXHR.responseText);
+                    self._mapErrorsToForm(errorData.errors);
+                }
+            });
+        },
+
+        _mapErrorsToForm: function (errorData) {
+            this._removeFormErrors();
+            let form = this.wrapper.find(this._selectors.newRepForm);
+
+            form.find(':input').each(function () {
+                let fieldName = $(this).attr('name');
+                let wrapper = $(this).closest('.form-group');
+                if (!errorData[fieldName]) {
+                    // continue;
                 }
 
+                let error = $('<span class="js-field-error help-block"></span>');
+                error.html(errorData[fieldName]);
+                wrapper.append(error);
+                wrapper.addClass('has-error');
+
             });
+        },
+
+        _removeFormErrors: function () {
+            let form = this.wrapper.find(this._selectors.newRepForm);
+            form.find('.js-field-error').remove();
+            form.find('.form-group').removeClass('has-error');
+        },
+
+        _clearForm: function () {
+            this._removeFormErrors();
+            let $form = this.wrapper.find(this._selectors.newRepForm);
+            $form[0].reset();
+        },
+        
+        _addRow: function (repLog) {
+            console.log('repLog');
         }
 
     });
